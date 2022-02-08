@@ -86,13 +86,8 @@ class minimaxAI(connect4Player):
 		player1_val = 0
 		player2_val = 0
 
-		#???
-		possible = env.topPosition >= 0
-		indices = []
-		for i, p in enumerate(possible):
-			if p: indices.append(i)
-
-		for i in indices:
+		#need to access the diff columns or rows
+		for i in env.board:
 
 			#how do i find the number of tokens in each column
 			if column1 or column7:
@@ -127,69 +122,62 @@ class minimaxAI(connect4Player):
 		if depth == 0 and bool_val == True:
 			return bool_val
 
+#Min/Max Player function
+#Steps:
+#1) generate all 7 different boards, each one with coin in diff column
+#how do i generate a move, and then get a copy of the updated board
+#2) check to see if the coin placement in column results in gameOver or at depth
+#if it does, return the evaluation function of that board
+#3) for each board, get the min or max value (which calls either Min or Max_Val)
+#4) this restarts the process
+
+
 	#Max Player function
-	def Max_Val(self, env, state, depth):
+	def Max_Val(self, env, depth):
 
-		possible = env.topPosition >= 0
-
-		if depth == 0 or env.gameOver():
-			return self.getEval(env, depth, env.gameOver(env.topPosition, 1))
+		#check to see if set depth has been reached
+		if depth == 0 or env.gameOver(self.position, 1):
+			return self.getEval(env, depth, env.gameOver(self.position, 1))
 		
-		value = -math.inf
-		for i, p in enumerate(possible):
-			value = max(value, self.Min_Val(env, p, depth-1))
+		#set value
+		value = math.inf
 
-		return value
-
-	#Min Player function
-	#Steps:
-	#1) generate all 7 different boards, each one with coin in diff column
-	#how do i generate a move, and then get a copy of the updated board
-	#2) check to see if the coin placement in column results in gameOver or at depth
-	#if it does, return the evaluation function of that board
-	#3) for each board, get the min or max value (which calls either Min or Max_Val)
-	#4) this restarts the process
-
-	#topposition use to check 
-
-move = first_move
-		player = self.position
-		self.simulateMove(env, move, player)
-		while not env.gameOver(move, player):
-			player = switch[player]
-			possible = env.topPosition >= 0
-			indices = []
-			for i, p in enumerate(possible):
-				if p: indices.append(i)
-			move = random.choice(indices)
-			self.simulateMove(env, move, player)
-		if len(env.history[0]) == 42: return 0
-
-	def Min_Val(self, env, state, depth):
-
+		#create list of columns that a move can be played in
 		possible = env.topPosition >= 0
 		indices = []
-
 		for i, p in enumerate(possible):
 			if p: indices.append(i)
 
-		for i in range(7):
-			env.play(env, i)
+		#go through the successors, 7 envs with a different move in each one
+		env = deepcopy(env)
+		for i in indices:
+			value = max(value, self.Min_Val(self.play(env, [i]), depth-1))
 
-		#gameOver(column, player), column (1-7) and player (1 or 2) are integers
-		if depth == 0 or env.gameOver():
-			return self.getEval(env, depth, env.gameOver(env.topPosition, 2))
+		return value
+
+
+	def Min_Val(self, env, depth):
+
+		#check to see if set depth has been reached
+		if depth == 0 or env.gameOver(self.position, 2):
+			return self.getEval(env, depth, env.gameOver(self.position, 2))
 		
+		#set value
 		value = math.inf
 
-		#Dont know if this is right
-		for i, p in enumerate(possible): 
-			#env.board(), i need to traverse through the 7 different possible plays (at most 7)
-			#p should be a state (which is a board with a move in 1 of the 7 columns)
+		#create list of columns that a move can be played in
+		possible = env.topPosition >= 0
+		indices = []
+		for i, p in enumerate(possible):
+			if p: indices.append(i)
 
-			env.play(env, i)
-			value = min(value, self.Max_Val(env, p, depth-1))
+		#go through the successors, 7 envs with a different move in each one
+		env = deepcopy(env)
+		for i in indices:
+			value = min(value, self.Max_Val(self.play(env, [i]), depth-1))
+
 		return value
+
 
 	def minimax_dec(self, env, depth, MaxPlayer):
 
