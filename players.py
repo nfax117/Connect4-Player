@@ -77,35 +77,52 @@ class stupidAI(connect4Player):
 			move[:] = [0]
 
 class minimaxAI(connect4Player):
-
-	#I still don't think that my player is being correctly detected. When I run, it seems that 
-	#my AI is picking the minimum values. It puts a coin in the outermost columns rather than the middle.
 	
-	#it also doesnt see when there is a possible blocking of a 4 in a row. I think that this is still due
-	#to it treating my function as the wrong player
+	def test_eval(self):
+		
+		last_col1 = 0
+		last_row1 = 0
+		GO_bool = False
+		print("actual board:")
+		board1 = [[1, 0, 0, 0, 0, 0, 0],[1, 0, 0, 0, 0, 0, 0],[2, 0, 1, 0, 0, 0, 0],[1, 0, 2, 0, 0, 2, 0],[1, 0, 2, 2, 0, 2, 0],[1, 1, 2, 1, 0, 2, 1]]
+		value1 = self.getEval(board1, GO_bool, 2, last_col1, last_row1)
 
-	#what exactly does self.position do?
+		last_col2 = 5
+		last_row2 = 2
+		print("better board:")
+		board2 = [[0, 0, 0, 0, 0, 0, 0],[1, 0, 0, 0, 0, 0, 0],[2, 0, 1, 0, 0, 1, 0],[1, 0, 2, 0, 0, 2, 0],[1, 0, 2, 2, 0, 2, 0],[1, 1, 2, 1, 0, 2, 1]]
+		value2 = self.getEval(board2, GO_bool, 2, last_col2, last_row2)
 
-	#should i screenshot the gameboard output and put onto the submission doc?
-
-	#playing against montecarlo, i do not block for some reason
-
+		print("Value of actual play:", value1)
+		print("Value of better play:", value2)
+	
 
 	#Function to get the evaluation function value
-	def getEval(self, env, GO_bool, player, last_col):
+	def getEval(self, env, GO_bool, player, last_col, last_row):
 
 		# If i win, set the eval value very high, if i lose very low
+		'''
 		if GO_bool == True and player == self.position:
 			return 100000
 
-		if GO_bool == True and player == self.opponent.position:
+		if GO_bool == True and player == self.opponent.position: #???
 			return -100000
+		'''
 		
 		eval_function_val = 0
 		player1_val = 0
 		player2_val = 0
+
 		board = env.getBoard()
+		
 		'''
+		board = env
+		for x in board:
+			print(x)
+		print("\n")
+		print("Last Column:", last_col, "Last Row", last_row)
+		'''
+
 		config1_1 = False
 		config1_2 = False
 		config2_1 = False
@@ -114,15 +131,12 @@ class minimaxAI(connect4Player):
 		config3_2 = False
 		config4_1 = False
 		config4_2 = False
-		'''
 		config5_1 = False
 		config5_2 = False
 		config6_1 = False
 		config6_2 = False
 		config7_1 = False
 		config7_2 = False
-		#config8_1 = False
-		#config8_2 = False
 		config9_1 = False
 		config9_2 = False
 		config10_1 = False
@@ -133,13 +147,13 @@ class minimaxAI(connect4Player):
 		config12_2 = False
 		block_3row_1 = False
 		block_3row_2 = False
+		block_2row_1 = False
+		block_2row_2 = False
 
-		last_row = env.topPosition[last_col]
-		#print("Last Col:", last_col, "Last Row:", last_row)
+		'''-------------------------------------------------------------------------------'''
 
-		#Need to implement blocking 4 in a rows with parameter of column that the move was played in.
-		#use board[env.topPosition[move]][move] to see where the last coin placed lies.
-
+		'''IF LAST MOVE BLOCKS AN OPPONENT 4 IN A ROW'''
+		
 		#check if three in a row below the placement
 		if last_row < 3:
 			if board[last_row][last_col] == 1 and board[last_row+1][last_col] == 2 and board[last_row+2][last_col] == 2 and board[last_row+3][last_col] == 2:
@@ -188,14 +202,66 @@ class minimaxAI(connect4Player):
 			if board[last_row][last_col] == 2 and board[last_row+1][last_col-1] == 1 and board[last_row+2][last_col-2] == 1 and board[last_row+3][last_col-3] == 1:
 				block_3row_2 = True
 
-		#print("here", board)
+		'''-------------------------------------------------------------------------------'''
+
+		'''IF LAST MOVE BLOCKS AN OPPONENT 3 IN A ROW'''
+
+		#Southeast
+		if last_col < 5 and last_row < 4:
+			if board[last_row][last_col] == 1 and board[last_row+1][last_col+1] == 1 and board[last_row+2][last_col+2] == 2:
+				block_2row_2 = True
+			if board[last_row][last_col] == 2 and board[last_row+1][last_col+1] == 2 and board[last_row+2][last_col+2] == 1:
+				block_2row_1 = True
+
+			if board[last_row][last_col] == 2 and board[last_row+1][last_col+1] == 1 and board[last_row+2][last_col+2] == 1:
+				block_2row_2 = True
+			if board[last_row][last_col] == 1 and board[last_row+1][last_col+1] == 2 and board[last_row+2][last_col+2] == 2:
+				block_2row_1 = True
+
+		#Northeast
+		if last_col < 5 and last_row > 1:
+			if board[last_row][last_col] == 1 and board[last_row-1][last_col+1] == 1 and board[last_row-2][last_col+2] == 2:
+				block_2row_2 = True
+			if board[last_row][last_col] == 2 and board[last_row-1][last_col+1] == 2 and board[last_row-2][last_col+2] == 1:
+				block_2row_1 = True
+
+			if board[last_row][last_col] == 2 and board[last_row-1][last_col+1] == 1 and board[last_row-2][last_col+2] == 1:
+				block_2row_2 = True
+			if board[last_row][last_col] == 1 and board[last_row-1][last_col+1] == 2 and board[last_row-2][last_col+2] == 2:
+				block_2row_1 = True
+
+		#Right
+		if last_col < 5:
+			if board[last_row][last_col] == 1 and board[last_row][last_col+1] == 1 and board[last_row][last_col+2] == 2:
+				block_2row_2 = True
+			if board[last_row][last_col] == 2 and board[last_row][last_col+1] == 2 and board[last_row][last_col+2] == 1:
+				block_2row_1 = True
+
+			if board[last_row][last_col] == 2 and board[last_row][last_col+1] == 1 and board[last_row][last_col+2] == 1:
+				block_2row_2 = True
+			if board[last_row][last_col] == 1 and board[last_row][last_col+1] == 2 and board[last_row][last_col+2] == 2:
+				block_2row_1 = True
+
+		#Down
+		if last_row < 4:
+			if board[last_row][last_col] == 1 and board[last_row+1][last_col] == 1 and board[last_row+2][last_col] == 2:
+				block_2row_2 = True
+			if board[last_row][last_col] == 2 and board[last_row+1][last_col] == 2 and board[last_row+2][last_col] == 1:
+				block_2row_1 = True
+
+			if board[last_row][last_col] == 2 and board[last_row+1][last_col] == 1 and board[last_row+2][last_col] == 1:
+				block_2row_2 = True
+			if board[last_row][last_col] == 1 and board[last_row+1][last_col] == 2 and board[last_row+2][last_col] == 2:
+				block_2row_1 = True
+
+		'''-------------------------------------------------------------------------------'''
+
 		#Board is 2d array, (row, col) = (0,0) is the top left corner
 
 		for col in range(7): #Iterate through the columns
 			for row in range(6): #Iterate through the rows
 
-				#Need to check if three in a row with blank space on either opposite ends.
-
+				'''CHECK TO SEE IF THERE ARE 3 IN A ROWS WITH OPEN POSITION ON EITHER SIDE'''
 				#Southeast
 				if col < 4 and row < 3:
 					#player one with open connect 4
@@ -247,103 +313,144 @@ class minimaxAI(connect4Player):
 					if board[row][col] == 0 and board[row+1][col] == 1 and board[row+2][col] == 1 and board[row+3][col] == 1:
 						config12_1 = True
 
-				'''
-				#Need to check for resulting 3 in a row plays
+				'''-------------------------------------------------------------------------------'''
+
+				'''CHECK TO SEE IF 2 IN A ROWS WITH OPEN POSITION ON EITHER SIDE'''
 				#Southeast
 				if col < 5 and row < 4:
-					if board[row][col] == 1 and board[row+1][col+1] == 1 and board[row+2][col+2] == 1:
+					if board[row][col] == 1 and board[row+1][col+1] == 1 and board[row+2][col+2] == 0:
 						config3_1 = True
-					if board[row][col] == 2 and board[row+1][col+1] == 2 and board[row+2][col+2] == 2:
+					if board[row][col] == 2 and board[row+1][col+1] == 2 and board[row+2][col+2] == 0:
 						config3_2 = True
+
+					if board[row][col] == 0 and board[row+1][col+1] == 1 and board[row+2][col+2] == 1:
+						config3_1 = True
+					if board[row][col] == 0 and board[row+1][col+1] == 2 and board[row+2][col+2] == 2:
+						config3_2 = True
+
 				#Northeast
 				if col < 5 and row > 1:
-					if board[row][col] == 1 and board[row-1][col+1] == 1 and board[row-2][col+2] == 1:
+					if board[row][col] == 1 and board[row-1][col+1] == 1 and board[row-2][col+2] == 0:
 						config4_1 = True
-					if board[row][col] == 2 and board[row-1][col+1] == 2 and board[row-2][col+2] == 2:
+					if board[row][col] == 2 and board[row-1][col+1] == 2 and board[row-2][col+2] == 0:
 						config4_2 = True
+
+					if board[row][col] == 0 and board[row-1][col+1] == 1 and board[row-2][col+2] == 1:
+						config4_1 = True
+					if board[row][col] == 0 and board[row-1][col+1] == 2 and board[row-2][col+2] == 2:
+						config4_2 = True
+
 				#Right
 				if col < 5:
-					if board[row][col] == 1 and board[row][col+1] == 1 and board[row][col+2] == 1:
+					if board[row][col] == 1 and board[row][col+1] == 1 and board[row][col+2] == 0:
 						config1_1 = True
-					if board[row][col] == 2 and board[row][col+1] == 2 and board[row][col+2] == 2:
+					if board[row][col] == 2 and board[row][col+1] == 2 and board[row][col+2] == 0:
 						config1_2 = True
+
+					if board[row][col] == 0 and board[row][col+1] == 1 and board[row][col+2] == 1:
+						config1_1 = True
+					if board[row][col] == 0 and board[row][col+1] == 2 and board[row][col+2] == 2:
+						config1_2 = True
+
 				#Down
 				if row < 4:
-					if board[row][col] == 2 and board[row+1][col] == 2 and board[row+2][col] == 2:
-						config2_2 = True
-					if board[row][col] == 1 and board[row+1][col] == 1 and board[row+2][col] == 1:
+					if board[row][col] == 1 and board[row+1][col] == 1 and board[row+2][col] == 0:
 						config2_1 = True
-				'''
+					if board[row][col] == 2 and board[row+1][col] == 2 and board[row+2][col] == 0:
+						config2_2 = True
 
+					if board[row][col] == 0 and board[row+1][col] == 1 and board[row+2][col] == 1:
+						config2_1 = True
+					if board[row][col] == 0 and board[row+1][col] == 2 and board[row+2][col] == 2:
+						config2_2 = True
+				
+				'''-------------------------------------------------------------------------------'''
+
+				'''CHECK HOW MANY COINS ARE IN CERTAIN COLUMNS'''
+				
+				#When Im player 2, MinimaxAI does better without this 
 				#Assign weights based on column number
-				if col==0 or col==6:
-					if board[row][col] == 1: #player 1 (Max Player)
+				if self.position == 2:
+					if col==0 or col==6:
+						if board[row][col] == 1:
 
-						player1_val = player1_val + 1
-					
-					elif board[row][col] == 2: #player 2 (Min Player)
-					
-						player2_val = player2_val + 1
+							player1_val = player1_val + 1
+						
+						elif board[row][col] == 2:
+						
+							player2_val = player2_val + 1
 
-				elif col==1 or col==5:
-					if board[row][col] == 1:
+					elif col==1 or col==5:
+						if board[row][col] == 1:
 
-						player1_val = player1_val + 2
-					
-					elif board[row][col] == 2:
-					
-						player2_val = player2_val + 2
+							player1_val = player1_val + 2
+						
+						elif board[row][col] == 2:
+						
+							player2_val = player2_val + 2
 
-				elif col==2 or col==4:
-					if board[row][col] == 1:
+					elif col==2 or col==4:
+						if board[row][col] == 1:
 
-						player1_val = player1_val + 5
-					
-					elif board[row][col] == 2:
-					
-						player2_val = player2_val + 5
+							player1_val = player1_val + 10
+						
+						elif board[row][col] == 2:
+						
+							player2_val = player2_val + 10
 
-				elif col==3:
-					if board[row][col] == 1:
+					elif col==3:
+						if board[row][col] == 1:
 
-						player1_val = player1_val + 10
-					
-					elif board[row][col] == 2:
-					
-						player2_val = player2_val + 10
+							player1_val = player1_val + 20
+						
+						elif board[row][col] == 2:
+						
+							player2_val = player2_val + 20
 
-				else:
-					print("Error")
-					pass
+					else:
+						print("Error")
+						pass
+				
+		'''-------------------------------------------------------------------------------'''
 
 		#Weighting for blocking an opponent potential 4 in a row
 		if block_3row_1 == True:
-			player1_val = player1_val + 100
+			player1_val = player1_val + 1000
+			return 1000
 		
 		if block_3row_2 == True:
-			player2_val = player2_val + 100
+			player2_val = player2_val + 1000
+			return 1000
 
-		'''
-		#Weighting for 3 in rows
+		#Weighting for blocking an opponent potential 3 in a row
+		if block_2row_1 == True:
+			player1_val = player1_val + 250
+		
+		if block_2row_2 == True:
+			player2_val = player2_val + 250
+
+
+		#Weighting for 2 in rows with open space to one side
 		if config1_1 or config2_1 or config3_1 or config4_1:
-			player1_val = player1_val + 5
+			player1_val = player1_val + 10
 
 		if config1_2 or config2_2 or config3_2 or config4_2:
-			player2_val = player2_val + 5
-		'''
+			player2_val = player2_val + 10
+
 
 		#three in a row with open 4th slot
 		if config5_1 or config6_1 or config7_1:
-			player1_val = player1_val + 10
+			player1_val = player1_val + 50
 		if config5_2 or config6_2 or config7_2:
-			player2_val = player2_val + 10
+			player2_val = player2_val + 50
 
 		#three in a row with open 1st slot
 		if config9_1 or config10_1 or config11_1 or config12_1:
-			player1_val = player1_val + 10
+			player1_val = player1_val + 50
 		if config9_2 or config10_2 or config11_2 or config12_2:
-			player2_val = player2_val + 10
+			player2_val = player2_val + 50
 
+		'''-------------------------------------------------------------------------------'''
 
 		#Determine who is player 1 and 2
 		if player == self.position:
@@ -351,10 +458,7 @@ class minimaxAI(connect4Player):
 		elif player == self.opponent.position:
 			eval_function_val = player2_val - player1_val
 
-		
 		return eval_function_val
-
-		#print("Eval Value:", eval_function_val)
 
 
 #Min/Max Player function
@@ -372,10 +476,11 @@ class minimaxAI(connect4Player):
 
 		#check to see if set depth has been reached
 		#if first recursion
-		if depth != 3:
-			if depth == 0 or env.gameOver(env.history[0][-1], player):
-				return self.getEval(env, env.gameOver(env.history[0][-1], player), player, last_col), None
 		
+		if depth == 0:
+			last_row = env.topPosition[last_col] + 1
+			return self.getEval(env, env.gameOver(env.history[0][-1], player), player, last_col, last_row), None
+	
 		#set value
 		best_value = -math.inf
 		best_move = -1
@@ -387,8 +492,6 @@ class minimaxAI(connect4Player):
 			if p: indices.append(i)
 
 		#go through the successors, 7 envs with a different move in each one
-		#switch = {1:2,2:1}
-		#player = switch[player]
 		player = self.position
 
 		for i in indices:
@@ -396,7 +499,16 @@ class minimaxAI(connect4Player):
 			env.visualize = False
 			self.simulateMove(env, i, player)
 
-			value = self.Min_Val(env, depth-1, player, i)[0]
+			is_tie = len(env.history[0]) + len(env.history[1]) == env.shape[0]*env.shape[1]
+
+			if env.gameOver(env.history[0][-1], player) and not is_tie:
+				return math.inf, i
+
+			elif env.gameOver(env.history[0][-1], player) and is_tie:
+				return 0, i
+
+			else:
+				value = self.Min_Val(env, depth-1, player, i)[0]
 
 			if value > best_value:
 				best_value = value
@@ -410,10 +522,10 @@ class minimaxAI(connect4Player):
 	def Min_Val(self, env, depth, player, last_col):
 
 		#check to see if set depth has been reached
-		if depth != 3:
-			if depth == 0 or env.gameOver(env.history[0][-1], player):
-				return self.getEval(env, env.gameOver(env.history[0][-1], player), player, last_col), None
-		
+		if depth == 0:
+			last_row = env.topPosition[last_col] + 1
+			return self.getEval(env, env.gameOver(env.history[0][-1], player), player, last_col, last_row), None
+	
 		#set value
 		best_value = math.inf
 		best_move = -1
@@ -424,17 +536,23 @@ class minimaxAI(connect4Player):
 		for i, p in enumerate(possible):
 			if p: indices.append(i)
 
-		#go through the successors, 7 envs with a different move in each one
-		#switch = {1:2,2:1}
-		#player = switch[player]
-
 		player = self.opponent.position
+
 		for i in indices:
 			env = deepcopy(env)
 			env.visualize = False
 			self.simulateMove(env, i, player)
 
-			value = self.Max_Val(env, depth-1, player, i)[0]
+			is_tie = len(env.history[0]) + len(env.history[1]) == env.shape[0]*env.shape[1]
+
+			if env.gameOver(env.history[0][-1], player) and not is_tie:
+				return -math.inf, i
+
+			elif env.gameOver(env.history[0][-1], player) and is_tie:
+				return 0, i
+
+			else:
+				value = self.Max_Val(env, depth-1, player, i)[0]
 
 			if value < best_value:
 				best_value = value
@@ -447,18 +565,22 @@ class minimaxAI(connect4Player):
 
 		env = deepcopy(env)
 		value, action = self.Max_Val(env, depth, player, None)
-
 		return value, action
 
 
 	def play(self, env, move):
 
+		
+		#self.test_eval()
+		#input()
+		
 		env = deepcopy(env)
-		player = self.position
+		player = self.position #gets my AI player player number
 		depth = 3 #Can change this to any depth that doesn't go over time limit (MAX = 3)
 		
 		action = [self.minimax_dec(env, depth, player)[1]]
 		print("No Time out, play in column:", action)
+		#print("Value:", self.minimax_dec(env, depth, player)[0])
 		move[:] = action
 			
 
@@ -467,18 +589,23 @@ class minimaxAI(connect4Player):
 		env.topPosition[move] -= 1
 		env.history[0].append(move)
 
+'''---------------------------------------------------------------------------------------------------------'''
 
 
 class alphaBetaAI(connect4Player):
 
 	def play(self, env, move):
+
+		# self.test_eval()
+		# input()
+
 		env = deepcopy(env)
 		player = self.position
 
 		alpha = -math.inf
 		beta = math.inf
 
-		action = [self.Alpha_Beta_Seach(self, alpha, beta, player)[1]]
+		action = [self.Alpha_Beta_Search(env, alpha, beta, player)[1]]
 		print("No Time out, play in column:", action)
 		move[:] = action
 
@@ -489,12 +616,12 @@ class alphaBetaAI(connect4Player):
 		env.history[0].append(move)
 
 
-	def Alpha_Beta_Seach(self, env, alpha, beta, player):
+	def Alpha_Beta_Search(self, env, alpha, beta, player):
 		env = deepcopy(env)
-		depth = 5
+		depth = 3
 		value, action = self.Max_Val_AB(env, alpha, beta, player, depth, None)
-
 		return value, action
+
 
 	def rearrange(self, array):
 		temp = []
@@ -511,14 +638,10 @@ class alphaBetaAI(connect4Player):
 	def Max_Val_AB(self, env, alpha, beta, player, depth, last_col):
 		#check to see if terminal state reached, no plays left to make
 		#count is used to make sure it is not the first recursion
-		if depth != 5:
-			if depth == 0 or env.gameOver(env.history[0][-1], player):
-				return self.getEval(env, env.gameOver(env.history[0][-1], player), player, last_col), None
-	
-		#possible = env.topPosition >= 0
-		#if all(possible) == False or env.gameOver(env.history[0][-1], player):
-		#	return self.getEval(env, env.gameOver(env.history[0][-1], player), player, last_col), None
-		
+		if depth == 0:
+			last_row = env.topPosition[last_col] + 1
+			return self.getEval1(env, env.gameOver(env.history[0][-1], player), player, last_col, last_row), None
+
 		#set value
 		best_value = -math.inf
 		best_move = -1
@@ -530,37 +653,44 @@ class alphaBetaAI(connect4Player):
 			if p: indices.append(i)
 
 		#go through the successors, 7 envs with a different move in each one
-		player = self.opponent.position
+		player = self.position
 
-		#order the moves to go from middle column play first, outwards
+		#successor function to order the moves to go from middle column play first, outwards
 		indices = self.rearrange(indices)
 
 		for i in indices:
 			env = deepcopy(env)
 			env.visualize = False
-
-			#Need successor function to order children boards from greatest to least, then call Min_Val_AB
-			#order based on which column a move is played in (middle to side columns)
-
 			self.simulateMove(env, i, player)
 
-			value = self.Min_Val_AB(env, alpha, beta, player, depth-1, i)[0]
+			is_tie = len(env.history[0]) + len(env.history[1]) == env.shape[0]*env.shape[1]
 
-			if value > beta:
+			if env.gameOver(env.history[0][-1], player) and not is_tie:
+				return math.inf, i
+
+			elif env.gameOver(env.history[0][-1], player) and is_tie:
+				return 0, i
+
+			else:
+				value = self.Min_Val_AB(env, alpha, beta, player, depth-1, i)[0]
+
+			if value > best_value:
 				best_value = value
 				best_move = i
+
+			if best_value >= beta:
 				return best_value, best_move
-			
-			alpha = max(alpha, value)
+		
+			alpha = max(alpha, best_value)
 
 		return best_value, best_move
 
 
 	def Min_Val_AB(self, env, alpha, beta, player, depth, last_col):
 
-		if depth != 5:
-			if depth == 0 or env.gameOver(env.history[0][-1], player):
-				return self.getEval(env, env.gameOver(env.history[0][-1], player), player, last_col), None
+		if depth == 0:
+			last_row = env.topPosition[last_col] + 1
+			return self.getEval1(env, env.gameOver(env.history[0][-1], player), player, last_col, last_row), None
 
 		#set value
 		best_value = math.inf
@@ -575,43 +705,81 @@ class alphaBetaAI(connect4Player):
 		#go through the successors, 7 envs with a different move in each one
 		player = self.opponent.position
 
-		#order the moves to go from middle column play first, outwards
+		#Successor function to order the moves to go from middle column play first, outwards
 		indices = self.rearrange(indices)
 
 		for i in indices:
-			env = deepcopy(env)
-			env.visualize = False
+			env1 = deepcopy(env)
+			env1.visualize = False
+			self.simulateMove(env1, i, player)
 
-			#Need successor function to order children boards from greatest to least, then call Max_Val_AB
+			is_tie = len(env1.history[0]) + len(env1.history[1]) == env1.shape[0]*env1.shape[1]
 
-			self.simulateMove(env, i, player)
+			if env1.gameOver(env1.history[0][-1], player) and not is_tie:
+				return -math.inf, i
 
-			value = self.Max_Val_AB(env, alpha, beta, player, depth-1, i)[0]
+			elif env1.gameOver(env1.history[0][-1], player) and is_tie:
+				return 0, i
 
-			if value < alpha:
+			else:
+				value = self.Max_Val_AB(env1, alpha, beta, player, depth-1, i)[0]
+
+			if value < best_value:
 				best_value = value
 				best_move = i
+
+			if best_value <= alpha:
 				return best_value, best_move
 			
-			beta = min(beta, value)
+			beta = min(beta, best_value)
 
 		return best_value, best_move
 
 
+	def test_eval(self):
+		
+		last_col1 = 2
+		last_row1 = 4
+		GO_bool = False
+		print("actual board:")
+		board1 = [[0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 2, 2, 0, 0],[0, 0, 1, 2, 1, 0, 0],[0, 0, 1, 2, 1, 1, 0]]
+		value1 = self.getEval1(board1, GO_bool, 1, last_col1, last_row1)
+
+		last_col2 = 3
+		last_row2 = 2
+		print("better board:")
+		board2 = [[0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 1, 0, 0, 0],[0, 0, 0, 2, 2, 0, 0],[0, 0, 0, 2, 1, 0, 0],[0, 0, 1, 2, 1, 1, 0]]
+		value2 = self.getEval1(board2, GO_bool, 1, last_col2, last_row2)
+
+		print("Value of actual play:", value1)
+		print("Value of better play:", value2)
+
+
 	#Function to get the evaluation function value
-	def getEval(self, env, GO_bool, player, last_col):
+	def getEval1(self, env, GO_bool, player, last_col, last_row):
 
 		# If i win, set the eval value very high, if i lose very low
+		'''
 		if GO_bool == True and player == self.position:
 			return 100000
 
-		if GO_bool == True and player == self.opponent.position:
+		if GO_bool == True and player == self.opponent.position: #???
 			return -100000
+		'''
 		
 		eval_function_val = 0
 		player1_val = 0
 		player2_val = 0
+
 		board = env.getBoard()
+		
+		# board = env
+		# for x in board:
+		# 	print(x)
+		# print("\n")
+		# print("Last Column:", last_col, "Last Row", last_row)
+		
+
 		config1_1 = False
 		config1_2 = False
 		config2_1 = False
@@ -626,8 +794,6 @@ class alphaBetaAI(connect4Player):
 		config6_2 = False
 		config7_1 = False
 		config7_2 = False
-		#config8_1 = False
-		#config8_2 = False
 		config9_1 = False
 		config9_2 = False
 		config10_1 = False
@@ -638,13 +804,13 @@ class alphaBetaAI(connect4Player):
 		config12_2 = False
 		block_3row_1 = False
 		block_3row_2 = False
+		block_2row_1 = False
+		block_2row_2 = False
 
-		last_row = env.topPosition[last_col]
-		#print("Last Col:", last_col, "Last Row:", last_row)
+		'''-------------------------------------------------------------------------------'''
 
-		#Need to implement blocking 4 in a rows with parameter of column that the move was played in.
-		#use board[env.topPosition[move]][move] to see where the last coin placed lies.
-
+		'''IF LAST MOVE BLOCKS AN OPPONENT 4 IN A ROW'''
+		
 		#check if three in a row below the placement
 		if last_row < 3:
 			if board[last_row][last_col] == 1 and board[last_row+1][last_col] == 2 and board[last_row+2][last_col] == 2 and board[last_row+3][last_col] == 2:
@@ -693,14 +859,66 @@ class alphaBetaAI(connect4Player):
 			if board[last_row][last_col] == 2 and board[last_row+1][last_col-1] == 1 and board[last_row+2][last_col-2] == 1 and board[last_row+3][last_col-3] == 1:
 				block_3row_2 = True
 
-		#print("here", board)
+		'''-------------------------------------------------------------------------------'''
+
+		'''IF LAST MOVE BLOCKS AN OPPONENT 3 IN A ROW'''
+
+		#Southeast
+		if last_col < 5 and last_row < 4:
+			if board[last_row][last_col] == 1 and board[last_row+1][last_col+1] == 1 and board[last_row+2][last_col+2] == 2:
+				block_2row_2 = True
+			if board[last_row][last_col] == 2 and board[last_row+1][last_col+1] == 2 and board[last_row+2][last_col+2] == 1:
+				block_2row_1 = True
+
+			if board[last_row][last_col] == 2 and board[last_row+1][last_col+1] == 1 and board[last_row+2][last_col+2] == 1:
+				block_2row_2 = True
+			if board[last_row][last_col] == 1 and board[last_row+1][last_col+1] == 2 and board[last_row+2][last_col+2] == 2:
+				block_2row_1 = True
+
+		#Northeast
+		if last_col < 5 and last_row > 1:
+			if board[last_row][last_col] == 1 and board[last_row-1][last_col+1] == 1 and board[last_row-2][last_col+2] == 2:
+				block_2row_2 = True
+			if board[last_row][last_col] == 2 and board[last_row-1][last_col+1] == 2 and board[last_row-2][last_col+2] == 1:
+				block_2row_1 = True
+
+			if board[last_row][last_col] == 2 and board[last_row-1][last_col+1] == 1 and board[last_row-2][last_col+2] == 1:
+				block_2row_2 = True
+			if board[last_row][last_col] == 1 and board[last_row-1][last_col+1] == 2 and board[last_row-2][last_col+2] == 2:
+				block_2row_1 = True
+
+		#Right
+		if last_col < 5:
+			if board[last_row][last_col] == 1 and board[last_row][last_col+1] == 1 and board[last_row][last_col+2] == 2:
+				block_2row_2 = True
+			if board[last_row][last_col] == 2 and board[last_row][last_col+1] == 2 and board[last_row][last_col+2] == 1:
+				block_2row_1 = True
+
+			if board[last_row][last_col] == 2 and board[last_row][last_col+1] == 1 and board[last_row][last_col+2] == 1:
+				block_2row_2 = True
+			if board[last_row][last_col] == 1 and board[last_row][last_col+1] == 2 and board[last_row][last_col+2] == 2:
+				block_2row_1 = True
+
+		#Down
+		if last_row < 4:
+			if board[last_row][last_col] == 1 and board[last_row+1][last_col] == 1 and board[last_row+2][last_col] == 2:
+				block_2row_2 = True
+			if board[last_row][last_col] == 2 and board[last_row+1][last_col] == 2 and board[last_row+2][last_col] == 1:
+				block_2row_1 = True
+
+			if board[last_row][last_col] == 2 and board[last_row+1][last_col] == 1 and board[last_row+2][last_col] == 1:
+				block_2row_2 = True
+			if board[last_row][last_col] == 1 and board[last_row+1][last_col] == 2 and board[last_row+2][last_col] == 2:
+				block_2row_1 = True
+
+		'''-------------------------------------------------------------------------------'''
+
 		#Board is 2d array, (row, col) = (0,0) is the top left corner
 
 		for col in range(7): #Iterate through the columns
 			for row in range(6): #Iterate through the rows
 
-				#Need to check if three in a row with blank space on either opposite ends.
-
+				'''CHECK TO SEE IF THERE ARE 3 IN A ROWS WITH OPEN POSITION ON EITHER SIDE'''
 				#Southeast
 				if col < 4 and row < 3:
 					#player one with open connect 4
@@ -752,64 +970,72 @@ class alphaBetaAI(connect4Player):
 					if board[row][col] == 0 and board[row+1][col] == 1 and board[row+2][col] == 1 and board[row+3][col] == 1:
 						config12_1 = True
 
+				'''-------------------------------------------------------------------------------'''
 
-				#Need to check for resulting 3 in a row plays
-
+				'''CHECK TO SEE IF 2 IN A ROWS WITH OPEN POSITION ON EITHER SIDE'''
 				#Southeast
 				if col < 5 and row < 4:
-					if board[row][col] == 1 and board[row+1][col+1] == 1 and board[row+2][col+2] == 1:
+					if board[row][col] == 1 and board[row+1][col+1] == 1 and board[row+2][col+2] == 0:
 						config3_1 = True
-					if board[row][col] == 2 and board[row+1][col+1] == 2 and board[row+2][col+2] == 2:
+					if board[row][col] == 2 and board[row+1][col+1] == 2 and board[row+2][col+2] == 0:
 						config3_2 = True
+
+					if board[row][col] == 0 and board[row+1][col+1] == 1 and board[row+2][col+2] == 1:
+						config3_1 = True
+					if board[row][col] == 0 and board[row+1][col+1] == 2 and board[row+2][col+2] == 2:
+						config3_2 = True
+
 				#Northeast
 				if col < 5 and row > 1:
-					if board[row][col] == 1 and board[row-1][col+1] == 1 and board[row-2][col+2] == 1:
+					if board[row][col] == 1 and board[row-1][col+1] == 1 and board[row-2][col+2] == 0:
 						config4_1 = True
-					if board[row][col] == 2 and board[row-1][col+1] == 2 and board[row-2][col+2] == 2:
+					if board[row][col] == 2 and board[row-1][col+1] == 2 and board[row-2][col+2] == 0:
 						config4_2 = True
+
+					if board[row][col] == 0 and board[row-1][col+1] == 1 and board[row-2][col+2] == 1:
+						config4_1 = True
+					if board[row][col] == 0 and board[row-1][col+1] == 2 and board[row-2][col+2] == 2:
+						config4_2 = True
+
 				#Right
 				if col < 5:
-					if board[row][col] == 1 and board[row][col+1] == 1 and board[row][col+2] == 1:
+					if board[row][col] == 1 and board[row][col+1] == 1 and board[row][col+2] == 0:
 						config1_1 = True
-					if board[row][col] == 2 and board[row][col+1] == 2 and board[row][col+2] == 2:
+					if board[row][col] == 2 and board[row][col+1] == 2 and board[row][col+2] == 0:
 						config1_2 = True
+
+					if board[row][col] == 0 and board[row][col+1] == 1 and board[row][col+2] == 1:
+						config1_1 = True
+					if board[row][col] == 0 and board[row][col+1] == 2 and board[row][col+2] == 2:
+						config1_2 = True
+
 				#Down
 				if row < 4:
-					if board[row][col] == 2 and board[row+1][col] == 2 and board[row+2][col] == 2:
-						config2_2 = True
-					if board[row][col] == 1 and board[row+1][col] == 1 and board[row+2][col] == 1:
+					if board[row][col] == 1 and board[row+1][col] == 1 and board[row+2][col] == 0:
 						config2_1 = True
+					if board[row][col] == 2 and board[row+1][col] == 2 and board[row+2][col] == 0:
+						config2_2 = True
 
+					if board[row][col] == 0 and board[row+1][col] == 1 and board[row+2][col] == 1:
+						config2_1 = True
+					if board[row][col] == 0 and board[row+1][col] == 2 and board[row+2][col] == 2:
+						config2_2 = True
+				
+				'''-------------------------------------------------------------------------------'''
 
+				'''CHECK HOW MANY COINS ARE IN CERTAIN COLUMNS'''
+				
 				#Assign weights based on column number
 				if col==0 or col==6:
-					if board[row][col] == 1: #player 1 (Max Player)
+					if board[row][col] == 1:
 
 						player1_val = player1_val + 1
 					
-					elif board[row][col] == 2: #player 2 (Min Player)
+					elif board[row][col] == 2:
 					
 						player2_val = player2_val + 1
 
 				elif col==1 or col==5:
-					if board[row][col] == 1:
-
-						player1_val = player1_val + 1.25
-					
-					elif board[row][col] == 2:
-					
-						player2_val = player2_val + 1.25
-
-				elif col==2 or col==4:
-					if board[row][col] == 1:
-
-						player1_val = player1_val + 1.5
-					
-					elif board[row][col] == 2:
-					
-						player2_val = player2_val + 1.5
-
-				elif col==3:
 					if board[row][col] == 1:
 
 						player1_val = player1_val + 2
@@ -818,36 +1044,68 @@ class alphaBetaAI(connect4Player):
 					
 						player2_val = player2_val + 2
 
+				elif col==2 or col==4:
+					if board[row][col] == 1:
+
+						player1_val = player1_val + 10
+					
+					elif board[row][col] == 2:
+					
+						player2_val = player2_val + 10
+
+				elif col==3:
+					if board[row][col] == 1:
+
+						player1_val = player1_val + 20
+					
+					elif board[row][col] == 2:
+					
+						player2_val = player2_val + 20
+
 				else:
 					print("Error")
 					pass
+				
+		'''-------------------------------------------------------------------------------'''
 
-		#Weighting for blocking opponent 3 in a rows
+		#Weighting for blocking an opponent potential 4 in a row
 		if block_3row_1 == True:
-			player1_val = player1_val + 30
+			player1_val = player1_val + 1000
+			return 10000
 		
 		if block_3row_2 == True:
-			player2_val = player2_val + 30
+			player2_val = player2_val + 1000
+			return 10000
 
-		#Weighting for 3 in rows
+		#Weighting for blocking an opponent potential 3 in a row
+		if block_2row_1 == True:
+			player1_val = player1_val + 250
+		
+		if block_2row_2 == True:
+			player2_val = player2_val + 250
+
+
+		#Weighting for 2 in rows with open space to one side
 		if config1_1 or config2_1 or config3_1 or config4_1:
-			player1_val = player1_val + 5
+			player1_val = player1_val + 10
 
 		if config1_2 or config2_2 or config3_2 or config4_2:
-			player2_val = player2_val + 5
+			player2_val = player2_val + 10
+
 
 		#three in a row with open 4th slot
 		if config5_1 or config6_1 or config7_1:
-			player1_val = player1_val + 10
+			player1_val = player1_val + 50
 		if config5_2 or config6_2 or config7_2:
-			player2_val = player2_val + 10
+			player2_val = player2_val + 50
 
 		#three in a row with open 1st slot
 		if config9_1 or config10_1 or config11_1 or config12_1:
-			player1_val = player1_val + 10
+			player1_val = player1_val + 50
 		if config9_2 or config10_2 or config11_2 or config12_2:
-			player2_val = player2_val + 10
+			player2_val = player2_val + 50
 
+		'''-------------------------------------------------------------------------------'''
 
 		#Determine who is player 1 and 2
 		if player == self.position:
@@ -855,10 +1113,7 @@ class alphaBetaAI(connect4Player):
 		elif player == self.opponent.position:
 			eval_function_val = player2_val - player1_val
 
-		
 		return eval_function_val
-
-		#print("Eval Value:", eval_function_val)
 
 
 
